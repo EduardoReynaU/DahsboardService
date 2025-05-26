@@ -7,6 +7,7 @@ export class MongoProyectoRepository {
 
   async findAll() {
     const docs = await this.collection.find().toArray();
+    console.log('[DEBUG] Proyectos desde Mongo:', proyectos);
     return docs.map(doc => new Proyecto({ ...doc, id: doc._id }));
   }
 }
