@@ -6,4 +6,4 @@ export class Convocatoria {
     this.medioContacto = medioContacto;
     this.estudianteId = estudianteId;
   }
-}
+} 
