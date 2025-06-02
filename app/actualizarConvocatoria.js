@@ -1,0 +1,1 @@
+module.exports = (repo, id, data) => repo.actualizarConvocatoria(id, data);

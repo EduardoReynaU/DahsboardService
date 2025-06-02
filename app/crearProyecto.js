@@ -1,0 +1,1 @@
+module.exports = (repo, data) => repo.crearProyecto(data);

@@ -1,57 +1,61 @@
-import express from 'express';
-import cors from 'cors';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { ApolloServer } from 'apollo-server-express';
-import { buildSubgraphSchema } from '@apollo/subgraph';
-import { typeDefs } from '../adapters/input/graphql/typeDefs.js';
-import { proyectoResolver } from '../adapters/input/graphql/resolvers/proyectoResolver.js';
-import { perfilUsuarioResolver } from '../adapters/input/graphql/resolvers/perfilUsuarioResolver.js';
-import { convocatoriaResolver } from '../adapters/input/graphql/resolvers/convocatoriaResolver.js';
-import { connectToDatabase } from './database.js';
-import { verifyJWT } from './jwt.js'; // ✅ Asegúrate de tener este helper implementado
+const { ApolloServer, gql } = require('apollo-server');
+const typeDefs = require('../adapters/input/graphql/typeDefs');
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// -------------------- Proyectos --------------------
+const getProyectos = require('../app/getProyectos');
+const getProyectoById = require('../app/getProyectoById');
+const crearProyecto = require('../app/crearProyecto');
+const actualizarProyecto = require('../app/actualizarProyecto');
+const eliminarProyecto = require('../app/eliminarProyecto');
 
-export const startGraphQLServer = async (useCases) => {
-  await connectToDatabase();
+const MongoProyectoRepository = require('../adapters/output/database/MongoProyectoRepository');
+const ProyectoModel = require('./models/ProyectoModel');
+const proyectoRepository = new MongoProyectoRepository(ProyectoModel);
 
-  const app = express();
-  app.use(cors());
-  app.use(express.static(path.join(__dirname, '../../public')));
+const proyectoResolver = require('../adapters/input/graphql/resolvers/proyectoResolver')(
+  getProyectos,
+  getProyectoById,
+  crearProyecto,
+  actualizarProyecto,
+  eliminarProyecto,
+  proyectoRepository
+);
 
-  const server = new ApolloServer({
-    schema: buildSubgraphSchema({ 
-      typeDefs,
-      resolvers: [
-        proyectoResolver(useCases),
-        perfilUsuarioResolver(useCases),
-        convocatoriaResolver(useCases)
-      ]
-    }),
-    context: async ({ req }) => {
-      const authHeader = req.headers.authorization || '';
-      const token = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
+// -------------------- Convocatorias --------------------
+const getConvocatorias = require('../app/getConvocatorias');
+const getConvocatoriaById = require('../app/getConvocatoriaById');
+const crearConvocatoria = require('../app/crearConvocatoria');
+const actualizarConvocatoria = require('../app/actualizarConvocatoria');
+const eliminarConvocatoria = require('../app/eliminarConvocatoria');
+const aceptarConvocado = require('../app/aceptarConvocado');
+const rechazarConvocado = require('../app/rechazarConvocado');
+const getConvocatoriasPorConvocado = require('../app/getConvocatoriasPorConvocado');
 
-      if (token) {
-        try {
-          const user = verifyJWT(token); // Decodifica y valida el token
-          return { user }; // Disponemos 'user' en todos los resolvers
-        } catch (err) {
-          console.warn("[AUTH] Token inválido:", err.message);
-          return {};
-        }
-      }
-      return {};
-    }
-  });
+const MongoConvocatoriaRepository = require('../adapters/output/database/MongoConvocatoriaRepository');
+const ConvocatoriaModel = require('./models/ConvocatoriaModel');
+const convocatoriaRepository = new MongoConvocatoriaRepository(ConvocatoriaModel);
 
-  await server.start();
-  server.applyMiddleware({ app, path: '/graphql' });
+const convocatoriaResolver = require('../adapters/input/graphql/resolvers/convocatoriaResolver')(
+  getConvocatorias,
+  getConvocatoriaById,
+  crearConvocatoria,
+  actualizarConvocatoria,
+  eliminarConvocatoria,
+  aceptarConvocado,
+  rechazarConvocado,
+  getConvocatoriasPorConvocado,
+  convocatoriaRepository
+  
+);
 
-  const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => {
-    console.log(`🚀 Dashboard Service corriendo en http://localhost:${PORT}/graphql`);
-  });
-};
+// -------------------- Unir todos los resolvers --------------------
+const { mergeResolvers } = require('@graphql-tools/merge');
+const resolvers = mergeResolvers([proyectoResolver, convocatoriaResolver]);
+
+// -------------------- Crear servidor Apollo --------------------
+const server = new ApolloServer({
+  typeDefs,
+  resolvers
+});
+
+module.exports = server;

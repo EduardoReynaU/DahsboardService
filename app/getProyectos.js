@@ -1,8 +1,4 @@
-export const getProyectos = (proyectoRepo) => async () => {
-  try {
-    return await proyectoRepo.findAll();
-  } catch (error) {
-    console.error("[❌] Error al obtener proyectos:", error);
-    throw new Error("Error al obtener los proyectos.");
-  }
+// app/getProyectos.js
+module.exports = async function getProyectos(proyectoRepository) {
+  return await proyectoRepository.getAllProyectos();
 };

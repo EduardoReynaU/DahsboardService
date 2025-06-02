@@ -1,0 +1,1 @@
+module.exports = (repo, id) => repo.getProyectoById(id);

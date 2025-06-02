@@ -1,21 +1,21 @@
-import { MongoClient } from 'mongodb';
-import dotenv from 'dotenv';
-dotenv.config();
+const mongoose = require('mongoose');
 
-const MONGO_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017';
-export const databaseName = process.env.DB_NAME || 'DashboardService';
+const MONGODB_URI = process.env.MONGODB_URI;
+const DB_NAME = process.env.DB_NAME || 'DashboardService';
 
-export const mongoClient = new MongoClient(MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-});
-
-export async function connectToDatabase() {
+module.exports = async function connectDB() {
   try {
-    await mongoClient.connect();
-    console.log(`✅ Conectado a MongoDB en ${MONGO_URI}, base de datos: ${databaseName}`);
+    const fullUri = `${MONGODB_URI}/${DB_NAME}`;
+
+    await mongoose.connect(fullUri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      dbName: DB_NAME
+    });
+
+    console.log(`✅ Conectado a MongoDB: ${fullUri}`);
   } catch (error) {
-    console.error('❌ Error al conectar a la base de datos:', error);
-    process.exit(1); // Salimos de la app si falla la conexión
+    console.error('❌ Error al conectar a MongoDB', error);
+    process.exit(1);
   }
-}
+};

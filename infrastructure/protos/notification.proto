@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package notification;
+
+service NotificationService {
+  rpc EnviarCorreoBienvenida (CorreoRequest) returns (CorreoResponse);
+  rpc EnviarCorreoConvocatoria (CorreoConvocatoriaRequest) returns (CorreoResponse);
+}
+
+message CorreoRequest {
+  string email = 1;
+  string nombre = 2;
+}
+
+message CorreoConvocatoriaRequest {
+  string emailConvocado = 1;
+  string emailCreador = 2;
+  string nombreConvocado = 3;
+  string nombreCreador = 4;
+  string nombreProyecto = 5;
+  string estado = 6; // "aceptado" o "rechazado"
+}
+
+message CorreoResponse {
+  bool exito = 1;
+  string mensaje = 2;
+}

@@ -1,12 +1,29 @@
-export const convocatoriaResolver = ({ getConvocatoriasUseCase, registrarConvocatoriaUseCase }) => ({
+module.exports = (
+  getConvocatorias,
+  getConvocatoriaById,
+  crearConvocatoria,
+  actualizarConvocatoria,
+  eliminarConvocatoria,
+  aceptarConvocado,
+  rechazarConvocado,
+  getConvocatoriasPorConvocado,
+  repo
+) => ({
   Query: {
-    convocatorias: async (_, { estudianteId }) => {
-      return await getConvocatoriasUseCase(estudianteId);
-    }
+    convocatorias: () => getConvocatorias(repo),
+    convocatoria: (_, { id }) => getConvocatoriaById(repo, id),
+    convocatoriasPorConvocado: (_, { correo }) => getConvocatoriasPorConvocado(repo, correo) // ✅ Agregado aquí
   },
   Mutation: {
-    registrarConvocatoria: async (_, { estudianteId, convocatoriaId }) => {
-      return await registrarConvocatoriaUseCase(estudianteId, convocatoriaId);
-    }
+    crearConvocatoria: (_, { input }) => crearConvocatoria(repo, input),
+    actualizarConvocatoria: (_, { id, input }) => actualizarConvocatoria(repo, id, input),
+    eliminarConvocatoria: (_, { id }) => eliminarConvocatoria(repo, id),
+
+    // Nuevas mutaciones:
+    aceptarConvocado: (_, { idConvocatoria, userId, datosCorreo }) =>
+      aceptarConvocado(repo, idConvocatoria, userId, datosCorreo),
+
+    rechazarConvocado: (_, { idConvocatoria, userId }) =>
+      rechazarConvocado(repo, idConvocatoria, userId)
   }
 });

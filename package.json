@@ -2,8 +2,8 @@
   "name": "dashboard_service",
   "version": "1.0.0",
   "description": "",
-  "type": "module",
   "main": "index.js",
+  
   "scripts": {
     "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -14,12 +14,17 @@
   "license": "ISC",
   "dependencies": {
     "@apollo/subgraph": "^2.10.2",
+    "@graphql-tools/merge": "^9.0.24",
+    "@grpc/grpc-js": "^1.13.4",
+    "@grpc/proto-loader": "^0.7.15",
+    "apollo-server": "^3.13.0",
     "apollo-server-express": "^3.13.0",
     "dotenv": "^16.5.0",
     "express": "^4.21.2",
     "graphql": "^16.11.0",
     "jsonwebtoken": "^9.0.2",
-    "mongodb": "^6.16.0"
+    "mongodb": "^6.16.0",
+    "mongoose": "^8.15.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
