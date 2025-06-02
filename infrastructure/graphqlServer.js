@@ -1,4 +1,6 @@
-const { ApolloServer, gql } = require('apollo-server');
+const { ApolloServer } = require('apollo-server');
+const { buildSubgraphSchema } = require('@apollo/subgraph');
+const { mergeResolvers } = require('@graphql-tools/merge');
 const typeDefs = require('../adapters/input/graphql/typeDefs');
 
 // -------------------- Proyectos --------------------
@@ -45,17 +47,14 @@ const convocatoriaResolver = require('../adapters/input/graphql/resolvers/convoc
   rechazarConvocado,
   getConvocatoriasPorConvocado,
   convocatoriaRepository
-  
 );
 
 // -------------------- Unir todos los resolvers --------------------
-const { mergeResolvers } = require('@graphql-tools/merge');
 const resolvers = mergeResolvers([proyectoResolver, convocatoriaResolver]);
 
-// -------------------- Crear servidor Apollo --------------------
+// -------------------- Crear servidor Apollo Federation --------------------
 const server = new ApolloServer({
-  typeDefs,
-  resolvers
+  schema: buildSubgraphSchema({ typeDefs, resolvers })
 });
 
 module.exports = server;

@@ -1,7 +1,8 @@
 const { gql } = require('apollo-server');
 
 module.exports = gql`
-  type Proyecto {
+  # ---------- ENTIDADES ----------
+  type Proyecto @key(fields: "id") {
     id: ID!
     titulo: String
     descripcion: String
@@ -14,6 +15,18 @@ module.exports = gql`
     usuarioId: ID
   }
 
+  type Convocatoria @key(fields: "id") {
+    id: ID!
+    titulo: String
+    descripcion: String
+    fechaLimite: String
+    idProyecto: ID!
+    idUsuario: ID!
+    convocados: [ID]
+    equipo: [ID]
+  }
+
+  # ---------- INPUTS ----------
   input ProyectoInput {
     titulo: String
     descripcion: String
@@ -26,29 +39,6 @@ module.exports = gql`
     usuarioId: ID
   }
 
-  type Query {
-    proyectos: [Proyecto]
-    proyecto(id: ID!): Proyecto
-  }
-
-  type Mutation {
-    crearProyecto(input: ProyectoInput!): Proyecto
-    actualizarProyecto(id: ID, input: ProyectoInput!): Proyecto
-    eliminarProyecto(id: ID!): Boolean
-  }
-
-
-  type Convocatoria {
-    id: ID!
-    titulo: String
-    descripcion: String
-    fechaLimite: String
-    idProyecto: ID!
-    idUsuario: ID!
-    convocados: [ID]
-    equipo: [ID]
-  }
-
   input ConvocatoriaInput {
     titulo: String
     descripcion: String
@@ -58,7 +48,7 @@ module.exports = gql`
     convocados: [ID]
     equipo: [ID]
   }
-  
+
   input DatosCorreoConvocatoria {
     emailConvocado: String!
     emailCreador: String!
@@ -66,25 +56,28 @@ module.exports = gql`
     nombreCreador: String!
     nombreProyecto: String!
   }
+
+  # ---------- QUERY ----------
   extend type Query {
+    proyectos: [Proyecto]
+    proyecto(id: ID!): Proyecto
+
     convocatorias: [Convocatoria]
     convocatoria(id: ID!): Convocatoria
+    convocatoriasPorConvocado(correo: String!): [Convocatoria]
   }
 
-  extend type Query {
-    convocatoriasPorConvocado(correo: String!): [Convocatoria]
-}
-
-
+  # ---------- MUTATION ----------
   extend type Mutation {
+    crearProyecto(input: ProyectoInput!): Proyecto
+    actualizarProyecto(id: ID, input: ProyectoInput!): Proyecto
+    eliminarProyecto(id: ID!): Boolean
+
     crearConvocatoria(input: ConvocatoriaInput!): Convocatoria
     actualizarConvocatoria(id: ID!, input: ConvocatoriaInput!): Convocatoria
     eliminarConvocatoria(id: ID!): Boolean
-  }
-  extend type Mutation {
+
     aceptarConvocado(idConvocatoria: ID!, userId: ID!, datosCorreo: DatosCorreoConvocatoria!): Convocatoria
     rechazarConvocado(idConvocatoria: ID!, userId: ID!): Convocatoria
-  } 
-
-
+  }
 `;
