@@ -1,6 +1,12 @@
 const grpc = require('@grpc/grpc-js');
 const protoLoader = require('@grpc/proto-loader');
 const path = require('path');
+// env
+const dotenv = require('dotenv');
+dotenv.config({ path: path.join(__dirname, '../.env') });
+
+URL_GRPC = process.env.URL_GRPC || 'localhost:50052';
+
 
 const PROTO_PATH = path.join(__dirname, '../infrastructure/protos', 'notification.proto');
 
@@ -16,7 +22,7 @@ const grpcObj = grpc.loadPackageDefinition(packageDef);
 const notificationPackage = grpcObj.notification;
 
 const client = new notificationPackage.NotificationService(
-  'localhost:50052',
+  URL_GRPC,
   grpc.credentials.createInsecure()
 );
 
