@@ -1,13 +1,11 @@
 const grpc = require('@grpc/grpc-js');
 const protoLoader = require('@grpc/proto-loader');
 const path = require('path');
-// env
 const dotenv = require('dotenv');
+
 dotenv.config({ path: path.join(__dirname, '../.env') });
 
-URL_GRPC = process.env.URL_GRPC || 'localhost:50052';
-
-
+const URL_GRPC = process.env.URL_GRPC || 'localhost:50052';
 const PROTO_PATH = path.join(__dirname, '../infrastructure/protos', 'notification.proto');
 
 const packageDef = protoLoader.loadSync(PROTO_PATH, {
@@ -23,7 +21,7 @@ const notificationPackage = grpcObj.notification;
 
 const client = new notificationPackage.NotificationService(
   URL_GRPC,
-  grpc.credentials.createInsecure()
+  grpc.credentials.createSsl()  // ✅ usa TLS para Cloud Run
 );
 
 function enviarCorreoConvocatoria(payload) {
